@@ -60,7 +60,7 @@ namespace inventory_api.Models
                 entity.HasKey(e => e.Id_seccion);
                 entity.Property(e => e.Id_seccion)
                     .HasColumnName("id_seccion");
-                entity.Property(e => e.Descrípcion)
+                entity.Property(e => e.Descripcion)
                     .HasColumnName("descripcion");
                 entity.Property(e => e.Id_subdep)
                     .HasColumnName("id_subdep");
