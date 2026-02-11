@@ -28,6 +28,60 @@ namespace inventory_api.Controllers
             return Ok(models);
         }
 
+        [HttpGet("funcionario/{id}")]
+        public async Task<ActionResult<IEnumerable<Funcionario>>> GetFuncionarioId(int id)
+        {
+            var models = await _context.Funcionario
+                .Where(p => p.Activo && p.Id_funcionario == id)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return Ok(models);
+        }
+
+        [HttpPost("crearFuncionario")]
+        public async Task<IActionResult> CrearPrioridad([FromBody] DtoFuncionario dto)
+        {
+            var model = new Funcionario
+            {
+                Pnombre = dto.Pnombre,
+                Snombre = dto.Snombre,
+                Appaterno = dto.Appaterno,
+                Apmaterno = string.IsNullOrWhiteSpace(dto.Apmaterno) ? "" : dto.Apmaterno,
+                Correo = dto.Correo,
+                Anexo = dto.Anexo > 0 ? 0 : dto.Anexo,
+                Cargo = dto.Cargo,
+                Teletrabajo = dto.Teletrabajo,
+                Notebook = dto.Notebook,
+                Validado = dto.Validado,
+                Id_seccion = dto.Id_seccion,
+                Id_prioridad = dto.Id_prioridad,
+                Activo = true
+            };
+
+            _context.Funcionario.Add(model);
+            await _context.SaveChangesAsync();
+
+            return Ok(model);
+        }
+
+        [HttpDelete("eliminarFuncionario/{id}")]
+        public async Task<IActionResult> DesactivarFuncionario(int id)
+        {
+            var model = await _context.Funcionario
+                                           .FirstOrDefaultAsync(p => p.Id_funcionario == id);
+
+            if (model == null)
+                return NotFound("Funcionario no encontrado.");
+
+            model.Activo = false;
+
+            _context.Funcionario.Update(model);
+            await _context.SaveChangesAsync();
+
+            return Ok("Funcionario desactivado correctamente.");
+        }
+
         //ASIGNACION EQUIPOS
         [HttpGet("asignaciones")]
         public async Task<ActionResult<IEnumerable<Equipo>>> GetAsignaciones()

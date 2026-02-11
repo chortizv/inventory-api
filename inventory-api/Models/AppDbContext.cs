@@ -125,7 +125,7 @@ namespace inventory_api.Models
                 entity.Property(e => e.Anexo)
                     .HasColumnName("anexo");
                 entity.Property(e => e.Cargo)
-                    .HasColumnName("Cargo");
+                    .HasColumnName("cargo");
                 entity.Property(e => e.Teletrabajo)
                     .HasColumnName("teletrabajo");
                 entity.Property(e => e.Notebook)
