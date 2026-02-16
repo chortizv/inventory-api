@@ -26,7 +26,58 @@ namespace inventory_api.Controllers
 
             return Ok(models);
         }
-        
+
+        [HttpGet("equipo/{serie}")]
+        public async Task<ActionResult<Equipo>> GetEquipoSerie(string serie)
+        {
+            var equipo = await _context.Equipo
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Activo && p.Serie == serie);
+
+            if (equipo == null)
+                return NotFound();
+
+            return Ok(equipo);
+        }
+
+        [HttpPost("crearEquipo")]
+        public async Task<IActionResult> crearEquipo([FromBody] DtoEquipo dto)
+        {
+            var model = new Equipo
+            {
+                Serie = dto.Serie,
+                Nombre = dto.Nombre,
+                Observacion = string.IsNullOrWhiteSpace(dto.Observacion) ? "" : dto.Observacion,
+                Id_estado = dto.Id_estado,
+                Id_modelo = dto.Id_modelo,
+                Id_tipoequipo = dto.Id_tipoequipo,
+                Id_contrato = dto.Id_contrato,
+                Activo = true
+            };
+
+            _context.Equipo.Add(model);
+            await _context.SaveChangesAsync();
+
+            return Ok(model);
+        }
+
+        [HttpDelete("eliminarEquipo/{serie}")]
+        public async Task<IActionResult> DesactivarEquipo(string serie)
+        {
+            var model = await _context.Equipo
+                                           .FirstOrDefaultAsync(p => p.Serie == serie);
+
+            if (model == null)
+                return NotFound("Equipo no encontrado.");
+
+            model.Activo = false;
+
+            _context.Equipo.Update(model);
+            await _context.SaveChangesAsync();
+
+            return Ok("Equipo desactivado correctamente.");
+        }
+
         //MARCA
         [HttpGet("marcas")]
         public async Task<ActionResult<IEnumerable<Marca>>> GetMarcas()
