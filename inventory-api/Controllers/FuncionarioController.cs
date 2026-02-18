@@ -94,6 +94,76 @@ namespace inventory_api.Controllers
             return Ok(models);
         }
 
+        [HttpGet("asignacion/{id}")]
+        public async Task<IActionResult> ObtenerAsignacion(int id)
+        {
+            var asignacion = await _context.Asignacion_Equipo
+                .FirstOrDefaultAsync(a => a.Id_asignacion == id);
+
+            if (asignacion == null)
+                return NotFound();
+
+            return Ok(asignacion);
+        }
+
+        [HttpPost("crearAsignacion")]
+        public async Task<IActionResult> CrearAsignacion([FromForm] DtoAsignacionEquipo dto)
+        {
+            if (dto.Archivo == null || dto.Archivo.Length == 0)
+                return BadRequest("Debe adjuntar un archivo.");
+
+            // Ruta física
+            var carpeta = Path.Combine(Directory.GetCurrentDirectory(), "uploads", "asignacion_equipo");
+
+            if (!Directory.Exists(carpeta))
+                Directory.CreateDirectory(carpeta);
+
+            // Nombre único
+            var nombreArchivo = Guid.NewGuid().ToString() + Path.GetExtension(dto.Archivo.FileName);
+
+            var rutaCompleta = Path.Combine(carpeta, nombreArchivo);
+
+            using (var stream = new FileStream(rutaCompleta, FileMode.Create))
+            {
+                await dto.Archivo.CopyToAsync(stream);
+            }
+
+            var url = $"/uploads/asignacion_equipo/{nombreArchivo}";
+
+            // Crear entidad
+            var asignacion = new Asignacion_equipo
+            {
+                Id_funcionario = dto.Id_funcionario,
+                Serie = dto.Serie,
+                Fecha_inicio = dto.Fecha_inicio,
+                Fecha_fin = dto.Fecha_fin,
+                Estado = dto.Estado,
+                Observacion = dto.Observacion,
+                Activo = true,
+                Url_archivo = url
+            };
+
+            _context.Asignacion_Equipo.Add(asignacion);
+            await _context.SaveChangesAsync();
+
+            return Ok(asignacion);
+        }
+
+        [HttpGet("historial/{idFuncionario}")]
+        public async Task<IActionResult> ObtenerHistorialPorFuncionario(int idFuncionario)
+        {
+            var historial = await _context.Asignacion_Equipo
+                .Where(a => a.Id_funcionario == idFuncionario)
+                .OrderByDescending(a => a.Fecha_inicio) // opcional pero recomendado
+                .AsNoTracking()
+                .ToListAsync();
+
+            if (!historial.Any())
+                return NotFound("El funcionario no tiene asignaciones registradas.");
+
+            return Ok(historial);
+        }
+
         //PRIORIDAD
         [HttpGet("prioridades")]
         public async Task<ActionResult<IEnumerable<Prioridad>>> GetPrioridades()

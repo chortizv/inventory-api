@@ -1,7 +1,8 @@
-using Microsoft.EntityFrameworkCore;
-using System;
-using Microsoft.EntityFrameworkCore;
 using inventory_api.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,6 +44,22 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseCors();
+
+
+var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+
+if (!Directory.Exists(uploadsPath))
+{
+    Directory.CreateDirectory(uploadsPath);
+}
+
+app.UseStaticFiles();
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(uploadsPath),
+    RequestPath = "/uploads"
+});
 
 //app.UseHttpsRedirection();
 
