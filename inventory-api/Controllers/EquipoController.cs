@@ -21,8 +21,41 @@ namespace inventory_api.Controllers
         public async Task<ActionResult<IEnumerable<Equipo>>> GetEquipos()
         {
             var models = await _context.Equipo
+                .Where(p => p.Activo)
                 .AsNoTracking()
                 .ToListAsync();
+
+            return Ok(models);
+        }
+        [HttpGet("equipos-descripcion")]
+        public async Task<ActionResult<IEnumerable<DtoEquipoDescripcion>>> GetEquiposDescripcion()
+        {
+            var models = await (
+                from e in _context.Equipo
+                join est in _context.Estado on e.Id_estado equals est.Id_estado
+                join mod in _context.Modelo on e.Id_modelo equals mod.Id_modelo
+                join tipo in _context.Tipo_modelo on e.Id_tipoequipo equals tipo.Id_tipomodelo
+                join con in _context.Contrato on e.Id_contrato equals con.Id_contrato
+                where e.Activo
+                select new DtoEquipoDescripcion
+                    {
+                        Serie = e.Serie,
+                        Nombre = e.Nombre,
+                        Observacion = e.Observacion,
+
+                        Id_estado = e.Id_estado,
+                        DescripcionEstado = est.Descripcion,
+
+                        Id_modelo = e.Id_modelo,
+                        DescripcionModelo = mod.Descripcion,
+
+                        Id_tipoequipo = e.Id_tipoequipo,
+                        DescripcionTipo = tipo.Descripcion,
+
+                        Id_contrato = e.Id_contrato,
+                        DescripcionContrato = con.Nomcontrato
+                    }
+                ).AsNoTracking().ToListAsync();
 
             return Ok(models);
         }
@@ -83,6 +116,7 @@ namespace inventory_api.Controllers
         public async Task<ActionResult<IEnumerable<Marca>>> GetMarcas()
         {
             var models = await _context.Marca
+                .Where(p => p.Activo)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -137,6 +171,7 @@ namespace inventory_api.Controllers
         public async Task<ActionResult<IEnumerable<Modelo>>> GetModelos()
         {
             var models = await _context.Modelo
+                .Where(p => p.Activo)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -192,6 +227,7 @@ namespace inventory_api.Controllers
         public async Task<ActionResult<IEnumerable<Tipo_modelo>>> GetTipoModelos()
         {
             var models = await _context.Tipo_modelo
+                .Where(p => p.Activo)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -246,6 +282,7 @@ namespace inventory_api.Controllers
         public async Task<ActionResult<IEnumerable<Estado>>> GetEstados()
         {
             var models = await _context.Estado
+                .Where(p => p.Activo)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -300,6 +337,7 @@ namespace inventory_api.Controllers
         public async Task<ActionResult<IEnumerable<Contrato>>> GetContratos()
         {
             var models = await _context.Contrato
+                .Where(p => p.Activo)
                 .AsNoTracking()
                 .ToListAsync();
 
