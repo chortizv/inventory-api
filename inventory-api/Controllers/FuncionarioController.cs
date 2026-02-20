@@ -112,6 +112,13 @@ namespace inventory_api.Controllers
             if (dto.Archivo == null || dto.Archivo.Length == 0)
                 return BadRequest("Debe adjuntar un archivo.");
 
+            // Buscar equipo primero
+            var equipo = await _context.Equipo
+                .FirstOrDefaultAsync(e => e.Serie == dto.Serie);
+
+            if (equipo == null)
+                return NotFound("No se encontró el equipo con la serie indicada.");
+
             // Ruta física
             var carpeta = Path.Combine(Directory.GetCurrentDirectory(), "uploads", "asignacion_equipo");
 
@@ -120,7 +127,6 @@ namespace inventory_api.Controllers
 
             // Nombre único
             var nombreArchivo = Guid.NewGuid().ToString() + Path.GetExtension(dto.Archivo.FileName);
-
             var rutaCompleta = Path.Combine(carpeta, nombreArchivo);
 
             using (var stream = new FileStream(rutaCompleta, FileMode.Create))
@@ -130,7 +136,6 @@ namespace inventory_api.Controllers
 
             var url = $"/uploads/asignacion_equipo/{nombreArchivo}";
 
-            // Crear entidad
             var asignacion = new Asignacion_equipo
             {
                 Id_funcionario = dto.Id_funcionario,
@@ -144,6 +149,9 @@ namespace inventory_api.Controllers
             };
 
             _context.Asignacion_Equipo.Add(asignacion);
+
+            equipo.Id_estado = 1;
+
             await _context.SaveChangesAsync();
 
             return Ok(asignacion);
@@ -154,7 +162,7 @@ namespace inventory_api.Controllers
         {
             var historial = await _context.Asignacion_Equipo
                 .Where(a => a.Id_funcionario == idFuncionario)
-                .OrderByDescending(a => a.Fecha_inicio) // opcional pero recomendado
+                .OrderByDescending(a => a.Fecha_inicio)
                 .AsNoTracking()
                 .ToListAsync();
 

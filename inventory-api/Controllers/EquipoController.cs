@@ -178,11 +178,11 @@ namespace inventory_api.Controllers
             return Ok(models);
         }
 
-        [HttpGet("modelo/{id}")]
-        public async Task<ActionResult<IEnumerable<Modelo>>> GetModeloId(int id)
+        [HttpGet("modelo/{idMarca}")]
+        public async Task<ActionResult<IEnumerable<Modelo>>> GetModeloId(int idMarca)
         {
             var models = await _context.Modelo
-                .Where(p => p.Activo && p.Id_modelo == id)
+                .Where(p => p.Activo && p.Id_marca == idMarca)
                 .AsNoTracking()
                 .ToListAsync();
 
