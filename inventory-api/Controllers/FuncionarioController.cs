@@ -49,7 +49,7 @@ namespace inventory_api.Controllers
                 Appaterno = dto.Appaterno,
                 Apmaterno = string.IsNullOrWhiteSpace(dto.Apmaterno) ? "" : dto.Apmaterno,
                 Correo = dto.Correo,
-                Anexo = dto.Anexo > 0 ? 0 : dto.Anexo,
+                Anexo = dto.Anexo > 0 ? dto.Anexo : 0,
                 Cargo = dto.Cargo,
                 Teletrabajo = dto.Teletrabajo,
                 Notebook = dto.Notebook,
@@ -293,11 +293,11 @@ namespace inventory_api.Controllers
             return Ok(models);
         }
 
-        [HttpGet("subdepartamento/{id}")]
-        public async Task<ActionResult<IEnumerable<Subdepartamento>>> GetSubeptoId(int id)
+        [HttpGet("subdepartamento/{idDepartamento}")]
+        public async Task<ActionResult<IEnumerable<Subdepartamento>>> GetSubeptoId(int idDepartamento)
         {
             var models = await _context.Subdepartamento
-                .Where(p => p.Activo && p.Id_subdep == id)
+                .Where(p => p.Activo && p.Id_dep == idDepartamento)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -348,11 +348,11 @@ namespace inventory_api.Controllers
             return Ok(models);
         }
 
-        [HttpGet("seccion/{id}")]
-        public async Task<ActionResult<IEnumerable<Seccion>>> GetSeccionId(int id)
+        [HttpGet("seccion/{idSubDepto}")]
+        public async Task<ActionResult<IEnumerable<Seccion>>> GetSeccionId(int idSubDepto)
         {
             var models = await _context.Seccion
-                .Where(p => p.Activo && p.Id_seccion == id)
+                .Where(p => p.Activo && p.Id_subdep == idSubDepto)
                 .AsNoTracking()
                 .ToListAsync();
 

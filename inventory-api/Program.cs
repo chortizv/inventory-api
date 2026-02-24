@@ -54,7 +54,7 @@ app.UseSwaggerUI(c =>
 app.UseCors();
 
 
-var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "/app/uploads");
 
 if (!Directory.Exists(uploadsPath))
 {
@@ -65,7 +65,7 @@ app.UseStaticFiles();
 
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(uploadsPath),
+    FileProvider = new PhysicalFileProvider("/app/uploads"),
     RequestPath = "/uploads"
 });
 

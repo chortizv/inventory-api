@@ -61,11 +61,34 @@ namespace inventory_api.Controllers
         }
 
         [HttpGet("equipo/{serie}")]
-        public async Task<ActionResult<Equipo>> GetEquipoSerie(string serie)
+        public async Task<ActionResult<DtoEquipoDescripcion>> GetEquipoSerie(string serie)
         {
-            var equipo = await _context.Equipo
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Activo && p.Serie == serie);
+            var equipo = await (
+                from e in _context.Equipo
+                join est in _context.Estado on e.Id_estado equals est.Id_estado
+                join mod in _context.Modelo on e.Id_modelo equals mod.Id_modelo
+                join tipo in _context.Tipo_modelo on e.Id_tipoequipo equals tipo.Id_tipomodelo
+                join con in _context.Contrato on e.Id_contrato equals con.Id_contrato
+                where e.Activo && e.Serie == serie
+                select new DtoEquipoDescripcion
+                {
+                    Serie = e.Serie,
+                    Nombre = e.Nombre,
+                    Observacion = e.Observacion,
+
+                    Id_estado = e.Id_estado,
+                    DescripcionEstado = est.Descripcion,
+
+                    Id_modelo = e.Id_modelo,
+                    DescripcionModelo = mod.Descripcion,
+
+                    Id_tipoequipo = e.Id_tipoequipo,
+                    DescripcionTipo = tipo.Descripcion,
+
+                    Id_contrato = e.Id_contrato,
+                    DescripcionContrato = con.Nomcontrato
+                }
+                ).AsNoTracking().ToListAsync();
 
             if (equipo == null)
                 return NotFound();
