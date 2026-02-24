@@ -29,14 +29,38 @@ namespace inventory_api.Controllers
         }
 
         [HttpGet("funcionario/{id}")]
-        public async Task<ActionResult<IEnumerable<Funcionario>>> GetFuncionarioId(int id)
+        public async Task<ActionResult<IEnumerable<DtoFuncionarioDes>>> GetFuncionarioId(int id)
         {
-            var models = await _context.Funcionario
-                .Where(p => p.Activo && p.Id_funcionario == id)
-                .AsNoTracking()
-                .ToListAsync();
-
-            return Ok(models);
+            var model = await (
+                from e in _context.Funcionario
+                join p in _context.Prioridad on e.Id_prioridad equals p.Id_prioridad
+                join s in _context.Seccion on e.Id_seccion equals s.Id_seccion
+                join sub in _context.Subdepartamento on s.Id_subdep equals sub.Id_subdep
+                join d in _context.Departamento on sub.Id_dep equals d.Id_dep
+                where e.Activo && e.Id_funcionario == id
+                select new DtoFuncionarioDes
+                {
+                    Pnombre = e.Pnombre,
+                    Snombre = e.Snombre,
+                    Appaterno = e.Appaterno,
+                    Apmaterno = e.Apmaterno,
+                    Correo = e.Correo,
+                    Anexo = e.Anexo,
+                    Cargo = e.Cargo,
+                    Teletrabajo = e.Teletrabajo,
+                    Notebook = e.Notebook,
+                    Validado = e.Validado,
+                    DescripcionPrioridad = p.Descripcion,
+                    Id_prioridad = p.Id_prioridad,
+                    DescripcionDepto = d.Descripcion,
+                    Id_Dep = d.Id_dep,
+                    DescripcionSubDepto = sub.Descripcion,
+                    Id_Subdep = sub.Id_subdep,
+                    DescripcionSeccion = s.Descripcion,
+                    Id_seccion = s.Id_seccion
+                }
+                ).AsNoTracking().ToListAsync();
+            return Ok(model);
         }
 
         [HttpPost("crearFuncionario")]
