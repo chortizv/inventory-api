@@ -22,6 +22,7 @@ namespace inventory_api.Controllers
         public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
         {
             var models = await _context.Usuario
+                .Where(p => p.Activo)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -59,6 +60,24 @@ namespace inventory_api.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(model);
+        }
+
+        [HttpDelete("eliminarUsuario/{id}")]
+        public async Task<IActionResult> DesactivarUsuario(int id)
+        {
+            var model = await _context.Usuario
+                                           .FirstOrDefaultAsync(p => p.Id_usuario == id);
+
+            if (model == null)
+                return NotFound("Usuario no encontrado.");
+
+            model.Activo = false;
+
+            _context.Entry(model).Property(x => x.Fecha_creacion).IsModified = false;
+
+            await _context.SaveChangesAsync();
+
+            return Ok("Usuario desactivado correctamente.");
         }
 
         [HttpPost("usuario/login")]
