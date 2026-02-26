@@ -27,6 +27,16 @@ namespace inventory_api.Controllers
 
             return Ok(models);
         }
+        [HttpGet("equipos-sinasignar")]
+        public async Task<ActionResult<IEnumerable<Equipo>>> GetEquiposSA()
+        {
+            var models = await _context.Equipo
+                .Where(p => p.Activo && p.Id_estado == 3)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return Ok(models);
+        }
         [HttpGet("equipos-descripcion")]
         public async Task<ActionResult<IEnumerable<DtoEquipoDescripcion>>> GetEquiposDescripcion()
         {

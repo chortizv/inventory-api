@@ -181,6 +181,33 @@ namespace inventory_api.Controllers
             return Ok(asignacion);
         }
 
+        [HttpDelete("eliminarAsignacion/{id}")]
+        public async Task<IActionResult> DesactivarAsignacion(int id)
+        {
+            var model = await _context.Asignacion_Equipo
+                                           .FirstOrDefaultAsync(p => p.Id_asignacion == id);
+
+            if (model == null)
+                return NotFound("Asignacion no encontrada.");
+
+            model.Activo = false;
+
+            var equipo = await _context.Equipo
+                .FirstOrDefaultAsync(e => e.Serie == model.Serie);
+
+            if (equipo == null)
+                return NotFound("Equipo asociado no encontrado.");
+
+            equipo.Id_estado = 3;
+
+            _context.Entry(model).Property(x => x.Fecha_inicio).IsModified = false;
+            _context.Entry(model).Property(x => x.Fecha_fin).IsModified = false;
+
+            await _context.SaveChangesAsync();
+
+            return Ok("Asignacion desactivada correctamente.");
+        }
+
         [HttpGet("historial/{idFuncionario}")]
         public async Task<IActionResult> ObtenerHistorialPorFuncionario(int idFuncionario)
         {
