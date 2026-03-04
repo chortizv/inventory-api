@@ -2,6 +2,7 @@
 {
     public class DtoFuncionarioDes
     {
+        public int IdFuncionario { get; set; }
         public string Pnombre { get; set; }
         public string? Snombre { get; set; }
         public string Appaterno { get; set; }

@@ -40,6 +40,7 @@ namespace inventory_api.Controllers
                 where e.Activo && e.Id_funcionario == id
                 select new DtoFuncionarioDes
                 {
+                    IdFuncionario = e.Id_funcionario,
                     Pnombre = e.Pnombre,
                     Snombre = e.Snombre,
                     Appaterno = e.Appaterno,
