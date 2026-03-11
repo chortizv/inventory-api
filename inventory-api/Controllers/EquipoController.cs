@@ -144,6 +144,27 @@ namespace inventory_api.Controllers
             return Ok("Equipo desactivado correctamente.");
         }
 
+        [HttpPut("modificarEquipo")]
+        public async Task<IActionResult> modificarEquipo([FromBody] DtoEquipo dto)
+        {
+            var equipo = await _context.Equipo
+                                    .FirstOrDefaultAsync(e => e.Serie == dto.Serie);
+
+            if (equipo == null)
+                return NotFound("No existe un equipo con esa serie");
+
+            equipo.Nombre = dto.Nombre != "" ? dto.Nombre : equipo.Nombre;
+            equipo.Observacion = dto.Observacion;
+            equipo.Id_estado = dto.Id_estado;
+            equipo.Id_modelo = dto.Id_modelo;
+            equipo.Id_tipoequipo = dto.Id_tipoequipo;
+            equipo.Id_contrato = dto.Id_contrato;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mensaje = "Equipo actualizado correctamente" });
+        }
+
         //MARCA
         [HttpGet("marcas")]
         public async Task<ActionResult<IEnumerable<Marca>>> GetMarcas()

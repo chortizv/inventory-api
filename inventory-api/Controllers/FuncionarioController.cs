@@ -107,6 +107,34 @@ namespace inventory_api.Controllers
             return Ok("Funcionario desactivado correctamente.");
         }
 
+        [HttpPut("modificarFuncionario")]
+        public async Task<IActionResult> modificarFucionario([FromBody] Funcionario fun) { 
+            
+            var funcionario = await _context.Funcionario
+                                           .FirstOrDefaultAsync(p => p.Id_funcionario == fun.Id_funcionario);
+
+            if (funcionario == null)
+                return NotFound("No existe un funcionario con ese id");
+
+            funcionario.Pnombre = fun.Pnombre != "" ? fun.Pnombre : funcionario.Pnombre;
+            funcionario.Snombre = fun.Snombre != "" ? fun.Snombre : funcionario.Snombre;
+            funcionario.Appaterno = fun.Appaterno != "" ? fun.Appaterno : funcionario.Appaterno;
+            funcionario.Apmaterno = fun.Apmaterno != "" ? fun.Apmaterno : funcionario.Apmaterno;
+            funcionario.Correo = fun.Correo != "" ? fun.Correo : funcionario.Correo;
+            funcionario.Anexo = fun.Anexo != 0 ? fun.Anexo : funcionario.Anexo;
+            funcionario.Cargo = fun.Cargo != "" ? fun.Cargo : funcionario.Cargo;
+            funcionario.Teletrabajo = fun.Teletrabajo;
+            funcionario.Notebook = fun.Notebook;
+            funcionario.Validado = fun.Validado;
+            funcionario.Id_seccion = fun.Id_seccion;
+            funcionario.Id_prioridad = fun.Id_prioridad;
+            funcionario.Activo = true;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mensaje = "Funcionario actualizado correctamente" });
+
+        }
         //ASIGNACION EQUIPOS
         [HttpGet("asignaciones")]
         public async Task<ActionResult<IEnumerable<Equipo>>> GetAsignaciones()

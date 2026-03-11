@@ -87,7 +87,8 @@ namespace inventory_api.Controllers
                 .FirstOrDefaultAsync(u => u.Username == dto.Username && u.Activo);
 
             if (usuario == null)
-                return Unauthorized(new DtoError{ 
+                return Unauthorized(new DtoError
+                {
                     Autorizado = false,
                     Mensaje = "Usuario no encontrado o inactivo"
                 });
@@ -112,6 +113,47 @@ namespace inventory_api.Controllers
                 Autorizado = true,
                 Mensaje = "Login Exitoso"
             });
+        }
+
+        [HttpPut("usuario/actualizarContrasena")]
+        public async Task<IActionResult> ActualizarContrasena([FromBody] DtoActualizarContrasena dto)
+        {
+            var usuario = await _context.Usuario
+                .FirstOrDefaultAsync(u => u.Id_usuario == dto.Id_usuario && u.Activo);
+            if (usuario == null)
+                return NotFound("Usuario no encontrado o inactivo");
+            var passwordHasher = new PasswordHasher<Usuario>();
+            var resultado = passwordHasher.VerifyHashedPassword(
+                usuario,
+                usuario.Password,
+                dto.ActuallyPassword
+            );
+            if (resultado == PasswordVerificationResult.Failed)
+                return Unauthorized("Contraseña actual incorrecta");
+            usuario.Password = passwordHasher.HashPassword(usuario, dto.NewPassword);
+
+            _context.Usuario.Update(usuario);
+
+            _context.Entry(usuario).Property(x => x.Fecha_creacion).IsModified = false;
+
+            await _context.SaveChangesAsync();
+            return Ok("Contraseña actualizada correctamente");
+        }
+
+        [HttpPut("usuario/actualizarUsuario")]
+        public async Task<IActionResult> ActualizarUsuario([FromBody] DtoUserUpdate dto)
+        {
+            var usuario = await _context.Usuario
+                .FirstOrDefaultAsync(u => u.Id_usuario == dto.Id_usuario && u.Activo);
+            if (usuario == null)
+                return NotFound("Usuario no encontrado o inactivo");
+            usuario.Username = dto.Username != "" ? dto.Username : usuario.Username;
+            usuario.Correo = dto.Correo != "" ? dto.Correo : usuario.Correo;
+            usuario.Id_funcionario = dto.Id_funcionario;
+            _context.Usuario.Update(usuario);
+            _context.Entry(usuario).Property(x => x.Fecha_creacion).IsModified = false;
+            await _context.SaveChangesAsync();
+            return Ok("Usuario actualizado correctamente");
         }
     }
 }
