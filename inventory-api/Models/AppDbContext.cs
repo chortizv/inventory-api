@@ -20,6 +20,7 @@ namespace inventory_api.Models
         public DbSet<Modelo> Modelo { get; set; }
         public DbSet<Equipo> Equipo { get; set; }
         public DbSet<Asignacion_equipo> Asignacion_Equipo { get; set; }
+        public DbSet<Cinta> Cinta { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -34,9 +35,6 @@ namespace inventory_api.Models
                 entity.Property(e => e.Activo)
                     .HasColumnName("activo");
             });
-
-
-
 
             modelBuilder.Entity<Subdepartamento>(entity =>
             {
@@ -272,6 +270,31 @@ namespace inventory_api.Models
                 entity.Property(e => e.Activo)
                     .HasColumnName("activo");
 
+                // Foreign Key
+            });
+
+            modelBuilder.Entity<Cinta>(entity =>
+            {
+                entity.ToTable("cinta", "public");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id)
+                    .HasColumnName("id");
+                entity.Property(e => e.Codigo)
+                    .HasColumnName("codigo");
+                entity.Property(e => e.Descripcion)
+                    .HasColumnName("descripcion");
+                entity.Property(e => e.Contenido)
+                    .HasColumnName("contenido");
+                entity.Property(e => e.Fecha_Respaldo)
+                    .HasColumnName("fecha_respaldo");
+                entity.Property(e => e.Ubicacion)
+                    .HasColumnName("ubicacion");
+                entity.Property(e => e.Estado)
+                    .HasColumnName("estado");
+                entity.Property(e => e.Fecha_Creacion)
+                    .HasColumnName("fecha_creacion");
+                entity.Property(e => e.Activo)
+                    .HasColumnName("activo");
                 // Foreign Key
             });
 

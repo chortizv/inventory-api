@@ -243,6 +243,17 @@ namespace inventory_api.Controllers
             return Ok(models);
         }
 
+        [HttpGet("modelo-idmodelo/{idModelo}")]
+        public async Task<ActionResult<IEnumerable<Modelo>>> GetMarcaModeloId(int idModelo)
+        {
+            var models = await _context.Modelo
+                .Where(p => p.Activo && p.Id_modelo == idModelo)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return Ok(models);
+        }
+
         [HttpPost("crearModelo")]
         public async Task<IActionResult> CrearModelo([FromBody] DtoModelo dto)
         {
