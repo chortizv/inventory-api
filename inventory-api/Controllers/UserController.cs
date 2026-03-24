@@ -1,20 +1,28 @@
 ﻿using inventory_api.Dtos;
 using inventory_api.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace inventory_api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public UserController(AppDbContext context)
+        public UserController(AppDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         //USUARIO
@@ -81,37 +89,50 @@ namespace inventory_api.Controllers
         }
 
         [HttpPost("usuario/login")]
+        [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] DtoLogin dto)
         {
             var usuario = await _context.Usuario
                 .FirstOrDefaultAsync(u => u.Username == dto.Username && u.Activo);
 
             if (usuario == null)
-                return Unauthorized(new DtoError
-                {
-                    Autorizado = false,
-                    Mensaje = "Usuario no encontrado o inactivo"
-                });
+                return Unauthorized(new { Autorizado = false, Mensaje = "Usuario no encontrado" });
 
             var passwordHasher = new PasswordHasher<Usuario>();
-
-            var resultado = passwordHasher.VerifyHashedPassword(
-                usuario,
-                usuario.Password,
-                dto.Password
-            );
+            var resultado = passwordHasher.VerifyHashedPassword(usuario, usuario.Password, dto.Password);
 
             if (resultado == PasswordVerificationResult.Failed)
-                return Unauthorized(new DtoError
-                {
-                    Autorizado = false,
-                    Mensaje = "Password incorrecta"
-                });
+                return Unauthorized(new { Autorizado = false, Mensaje = "Password incorrecta" });
 
-            return Ok(new DtoError
+            var jwtConfig = _configuration.GetSection("Jwt");
+            var secretKey = jwtConfig["Key"];
+            var issuer = jwtConfig["Issuer"];
+            var audience = jwtConfig["Audience"];
+            var expiresMinutes = double.Parse(jwtConfig["ExpiresMinutes"]);
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, usuario.Username),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim("id_usuario", usuario.Id_usuario.ToString())
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: issuer,
+                audience: audience,
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(expiresMinutes),
+                signingCredentials: creds
+            );
+
+            return Ok(new
             {
                 Autorizado = true,
-                Mensaje = "Login Exitoso"
+                Token = new JwtSecurityTokenHandler().WriteToken(token),
+                Expiracion = DateTime.UtcNow.AddMinutes(expiresMinutes)
             });
         }
 

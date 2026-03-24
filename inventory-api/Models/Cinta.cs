@@ -11,5 +11,6 @@
         public string Estado { get; set; }
         public DateTime Fecha_Creacion { get; set; }
         public Boolean Activo { get; set; }
+        public decimal Capacidad { get; set; }
     }
 }

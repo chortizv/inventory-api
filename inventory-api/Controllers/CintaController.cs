@@ -1,10 +1,12 @@
 ﻿using inventory_api.Dtos;
 using inventory_api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace inventory_api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class CintaController : ControllerBase
@@ -36,7 +38,8 @@ namespace inventory_api.Controllers
                     Ubicacion = dto.Ubicacion,
                     Estado = dto.Estado,
                     Fecha_Creacion = DateTime.UtcNow,
-                    Activo = true
+                    Activo = true,
+                    Capacidad = dto.Capacidad
                 };
 
                 _context.Cinta.Add(cinta);
@@ -91,5 +94,29 @@ namespace inventory_api.Controllers
             return Ok("Cinta desactivada correctamente.");
         }
 
+        [HttpPut("modificar")]
+        public async Task<IActionResult> modificar([FromBody] Cinta model)
+        {
+            var cinta = await _context.Cinta
+                                    .FirstOrDefaultAsync(e => e.Id == model.Id);
+
+            if (cinta == null)
+                return NotFound("No existe una cinta con ese ID");
+
+            cinta.Codigo = model.Codigo != "" ? model.Codigo : "";
+            cinta.Ubicacion = model.Ubicacion != "" ? model.Ubicacion : "";
+            cinta.Descripcion = model.Descripcion != "" ? model.Descripcion : "";
+            cinta.Contenido = model.Contenido != "" ? model.Contenido : "";
+            cinta.Estado = model.Estado != "" ? model.Estado : "";
+            cinta.Fecha_Respaldo = model.Fecha_Respaldo;
+            cinta.Capacidad = model.Capacidad;
+            cinta.Activo = true;
+
+            _context.Entry(model).Property(x => x.Fecha_Creacion).IsModified = false;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mensaje = "Equipo actualizado correctamente" });
+        }
     }
 }

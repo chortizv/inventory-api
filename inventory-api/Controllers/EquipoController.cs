@@ -1,10 +1,12 @@
 ﻿using inventory_api.Dtos;
 using inventory_api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace inventory_api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class EquipoController : ControllerBase

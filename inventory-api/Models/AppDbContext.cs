@@ -295,6 +295,8 @@ namespace inventory_api.Models
                     .HasColumnName("fecha_creacion");
                 entity.Property(e => e.Activo)
                     .HasColumnName("activo");
+                entity.Property(e => e.Capacidad)
+                    .HasColumnName("capacidad");
                 // Foreign Key
             });
 

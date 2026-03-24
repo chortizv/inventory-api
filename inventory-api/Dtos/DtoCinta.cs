@@ -8,5 +8,6 @@
         public DateTime? Fecha_Respaldo { get; set; }
         public string Ubicacion { get; set; }
         public string Estado { get; set; }
+        public decimal Capacidad { get; set; }
     }
 }
