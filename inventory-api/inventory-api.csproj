@@ -7,6 +7,8 @@
     <RootNamespace>inventory_api</RootNamespace>
     <UserSecretsId>1b5fdfe6-9fe6-41e1-aa72-8e002eb0af6c</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+	<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	<NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

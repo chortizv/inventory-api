@@ -6,9 +6,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace inventory_api.Controllers
 {
+
     [Authorize]
     [ApiController]
     [Route("api/[controller]")]
+    /// <summary>
+    /// Gestión de productos electrónicos del inventario.
+    /// </summary>
     public class CintaController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -18,6 +22,15 @@ namespace inventory_api.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Obtiene un producto específico por su ID.
+        /// </summary>
+        /// <remarks>
+        /// Aquí puedes añadir una descripción más larga o ejemplos de uso:
+        /// 
+        ///     GET /productos/1
+        ///     
+        /// </remarks>
         [HttpPost("crear")]
         public async Task<IActionResult> CrearCinta([FromBody] DtoCinta dto)
         {
